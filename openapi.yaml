@@ -1,0 +1,4 @@
+POST /events
+GET /notifications/{id}
+POST /preferences
+GET /analytics

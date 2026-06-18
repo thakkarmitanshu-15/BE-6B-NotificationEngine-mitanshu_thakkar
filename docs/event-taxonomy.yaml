@@ -1,0 +1,125 @@
+events:
+  - code: TXNX-001
+    name: Buy Order Executed
+    category: Transaction
+    urgency: HIGH
+
+  - code: TXNX-002
+    name: Sell Order Executed
+    category: Transaction
+    urgency: HIGH
+
+  - code: TXNX-003
+    name: Order Rejected
+    category: Transaction
+    urgency: HIGH
+
+  - code: TXNX-004
+    name: Dividend Credited
+    category: Transaction
+    urgency: MEDIUM
+
+  - code: TXNX-005
+    name: Funds Deposited
+    category: Transaction
+    urgency: HIGH
+
+  - code: RISK-001
+    name: Margin Call Warning
+    category: Risk
+    urgency: CRITICAL
+
+  - code: RISK-002
+    name: Margin Shortfall
+    category: Risk
+    urgency: CRITICAL
+
+  - code: RISK-003
+    name: Position Squared Off
+    category: Risk
+    urgency: CRITICAL
+
+  - code: RISK-004
+    name: Portfolio Risk Alert
+    category: Risk
+    urgency: HIGH
+
+  - code: RISK-005
+    name: Concentration Alert
+    category: Risk
+    urgency: MEDIUM
+
+  - code: SIPX-001
+    name: SIP Due Reminder
+    category: SIP
+    urgency: MEDIUM
+
+  - code: SIPX-002
+    name: SIP Executed
+    category: SIP
+    urgency: HIGH
+
+  - code: SIPX-003
+    name: SIP Failed
+    category: SIP
+    urgency: HIGH
+
+  - code: SIPX-004
+    name: SIP Step-Up Reminder
+    category: SIP
+    urgency: LOW
+
+  - code: SIPX-005
+    name: Goal Milestone Reached
+    category: SIP
+    urgency: LOW
+
+  - code: MKTX-001
+    name: Price Alert Triggered
+    category: Market
+    urgency: HIGH
+
+  - code: MKTX-002
+    name: Circuit Breaker Hit
+    category: Market
+    urgency: CRITICAL
+
+  - code: MKTX-003
+    name: Market Open Close
+    category: Market
+    urgency: LOW
+
+  - code: MKTX-004
+    name: 52 Week High Low
+    category: Market
+    urgency: MEDIUM
+
+  - code: MKTX-005
+    name: Earnings Announcement
+    category: Market
+    urgency: MEDIUM
+
+  - code: REGX-001
+    name: KYC Expiry Warning
+    category: Regulatory
+    urgency: HIGH
+
+  - code: REGX-002
+    name: Nominee Update Reminder
+    category: Regulatory
+    urgency: MEDIUM
+
+  - code: REGX-003
+    name: Contract Note Generated
+    category: Regulatory
+    urgency: HIGH
+
+  - code: REGX-004
+    name: Tax Statement Available
+    category: Regulatory
+    urgency: MEDIUM
+
+  - code: REGX-005
+    name: Regulatory Policy Change
+    category: Regulatory
+    urgency: LOW

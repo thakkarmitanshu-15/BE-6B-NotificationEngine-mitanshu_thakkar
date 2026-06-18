@@ -1,0 +1,12 @@
+services:
+  postgres:
+    image: postgres:15
+
+  redis:
+    image: redis:7
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+
+  rabbitmq:
+    image: rabbitmq:3.12-management
