@@ -5,6 +5,9 @@ import { routeEvent } from "../routing/notificationRouter";
 import { isDuplicate } from "../deduplication/redisDeduplicator";
 import { getUserPreferences } from "../services/preferenceService";
 import { resolvePreferences } from "../services/preferenceResolver";
+import { canSendNotification } from "../compliance/frequencyCap"; 
+import { isQuietHours } from "../compliance/quietHours";
+import { isDndEnabled } from "../compliance/dndService";
 
 const consumer = kafka.consumer({
   groupId: "notification-group",
@@ -127,6 +130,89 @@ export async function startConsumer() {
           channels
         );
 
+        const allowed = await canSendNotification(
+          event.userId
+        );
+
+        if (!allowed) {
+
+          console.log(
+            "Frequency cap reached"
+          );
+
+          await consumer.commitOffsets([
+            {
+              topic,
+              partition,
+              offset: (
+                Number(message.offset) + 1
+              ).toString(),
+            },
+          ]);
+
+          return;
+        }
+        const criticalEvent =
+            event.eventType.startsWith("RISK");
+
+            if (criticalEvent) {
+            await pool.query(
+              `
+              INSERT INTO critical_event_audit
+              (
+                event_id,
+                reason
+              )
+              VALUES($1,$2)
+              `,
+              [
+                event.eventId,
+                "Critical event bypassed quiet hours",
+              ]
+            );
+
+            console.log("Critical Event - Bypass Enabled");
+          }
+
+          if (
+            isQuietHours() &&
+            !criticalEvent
+          ) {
+
+            console.log(
+              "Quiet Hours - Queued"
+            );
+
+            await pool.query(
+              `
+              INSERT INTO notification_digest
+              (
+                user_id,
+                event_id,
+                payload,
+                created_at
+              )
+              VALUES($1,$2,$3,NOW())
+              `,
+              [
+                event.userId,
+                event.eventId,
+                JSON.stringify(enrichedEvent),
+              ]
+            );
+
+            await consumer.commitOffsets([
+              {
+                topic,
+                partition,
+                offset: (
+                  Number(message.offset) + 1
+                ).toString(),
+              },
+            ]);
+
+            return;
+          }
         // -----------------------------
         // Digest Mode
         // -----------------------------
@@ -164,12 +250,32 @@ export async function startConsumer() {
           console.log(
             "Immediate Delivery"
           );
+                  if (channels.includes("sms")) {
 
+          const blocked =
+            await isDndEnabled(
+             event.phoneNumber
+            );
+
+          if (blocked) {
+
+            console.log(
+              "SMS blocked by DND"
+            );
+
+            const index =
+              channels.indexOf("sms");
+
+            channels.splice(index, 1);
+          }
+
+}
           // Day 7:
           // Email Provider
           // SMS Provider
           // Push Provider
         }
+       
 
         // -----------------------------
         // Store Event
