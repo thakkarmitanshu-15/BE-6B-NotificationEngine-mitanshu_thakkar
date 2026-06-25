@@ -8,6 +8,8 @@
     "rootDir": "./src",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "types": ["node", "jest"]
+    "types": ["node", "jest"],
+     "resolveJsonModule": true,
+    "esModuleInterop": true
   }
 }
