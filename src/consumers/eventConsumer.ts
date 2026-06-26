@@ -1,7 +1,6 @@
 import { kafka } from "../config/kafka";
 import { pool } from "../config/database";
 import { enrichEvent } from "../enrichment/eventEnrichment";
-import { routeEvent } from "../routing/notificationRouter";
 import { isDuplicate } from "../deduplication/redisDeduplicator";
 import { getUserPreferences } from "../services/preferenceService";
 import { resolvePreferences } from "../services/preferenceResolver";
@@ -10,6 +9,8 @@ import { isQuietHours } from "../compliance/quietHours";
 import { isDndEnabled } from "../compliance/dndService";
 import { getProvider } from "../providers/ProviderFactory";
 import { CircuitBreaker } from "../circuitbreaker/circuitBreaker";
+import {getAllChannels} from "../routing/intelligentRouter";
+
 
 const consumer = kafka.consumer({
   groupId: "notification-group",
@@ -68,9 +69,7 @@ export async function startConsumer() {
         // -----------------------------
         // Routing
         // -----------------------------
-        const routing = routeEvent(
-          event.eventType
-        );
+        const scoredChannels = getAllChannels(event.eventType);
 
         // -----------------------------
         // User Preferences
@@ -105,27 +104,30 @@ export async function startConsumer() {
         // -----------------------------
         // Filter Channels
         // -----------------------------
-        const channels =
-          routing.channels.filter(
-            (channel) => {
-              switch (channel) {
-                case "email":
-                  return finalPreferences.emailEnabled;
+        const channels = scoredChannels.filter((channel) => {
+      switch (channel) {
 
-                case "sms":
-                  return finalPreferences.smsEnabled;
+      case "email":
+        return finalPreferences.emailEnabled;
 
-                case "push":
-                  return finalPreferences.pushEnabled;
+      case "sms":
+        return finalPreferences.smsEnabled;
 
-                case "whatsapp":
-                  return finalPreferences.whatsappEnabled;
+      case "push":
+        return finalPreferences.pushEnabled;
 
-                default:
-                  return false;
-              }
-            }
-          );
+      case "whatsapp":
+        return finalPreferences.whatsappEnabled;
+
+      case "inapp":
+        return true;
+
+      default:
+        return false;
+
+    }
+  }
+);
 
         console.log(
           "Final Channels:",
