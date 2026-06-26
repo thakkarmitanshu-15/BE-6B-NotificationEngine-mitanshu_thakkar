@@ -4,11 +4,13 @@ import { startConsumer } from "./consumers/eventConsumer";
 import preferenceRoutes from "./routes/preferenceRoutes";
 import { connectRedis } from "./cache/redisCache";
 import { checkProviders } from "./health/providerHealth";
+import dlqRoutes from "./routes/dlqRoutes";
 
 const app = express();
 
 app.use(express.json());
 app.use(preferenceRoutes);
+app.use("/api", dlqRoutes);
 
 async function main() {
 
