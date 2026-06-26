@@ -3,6 +3,7 @@ import { publishEvent } from "./producers/eventProducer";
 import { startConsumer } from "./consumers/eventConsumer";
 import preferenceRoutes from "./routes/preferenceRoutes";
 import { connectRedis } from "./cache/redisCache";
+import { checkProviders } from "./health/providerHealth";
 
 const app = express();
 
@@ -14,6 +15,8 @@ async function main() {
 await connectRedis();
 // Start Kafka consumer
 await startConsumer();
+
+await checkProviders();
 
 // Start Express server
 app.listen(3000, () => {

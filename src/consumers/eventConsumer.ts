@@ -8,6 +8,8 @@ import { resolvePreferences } from "../services/preferenceResolver";
 import { canSendNotification } from "../compliance/frequencyCap"; 
 import { isQuietHours } from "../compliance/quietHours";
 import { isDndEnabled } from "../compliance/dndService";
+import { getProvider } from "../providers/ProviderFactory";
+import { CircuitBreaker } from "../circuitbreaker/circuitBreaker";
 
 const consumer = kafka.consumer({
   groupId: "notification-group",
@@ -216,37 +218,49 @@ export async function startConsumer() {
         // -----------------------------
         // Digest Mode
         // -----------------------------
-        if (
-          finalPreferences.digestMode
-        ) {
-          console.log(
-            "Digest Mode Enabled"
-          );
+        if (finalPreferences.digestMode) {
 
-          await pool.query(
-            `
-            INSERT INTO notification_digest
-            (
-              user_id,
-              event_id,
-              payload,
-              created_at
-            )
-            VALUES($1,$2,$3,NOW())
-            `,
-            [
-              event.userId,
-              event.eventId,
-              JSON.stringify(
-                enrichedEvent
-              ),
-            ]
-          );
+  console.log("Digest Mode Enabled");
 
-          console.log(
-            "Notification added to digest queue"
-          );
-        } else {
+  await pool.query(
+    `
+    INSERT INTO notification_digest
+    (
+      user_id,
+      event_id,
+      payload,
+      created_at
+    )
+    VALUES($1,$2,$3,NOW())
+    `,
+    [
+      event.userId,
+      event.eventId,
+      JSON.stringify(enrichedEvent),
+    ]
+  );
+
+  console.log("Notification added to digest queue");
+
+  // Commit offset
+  await consumer.commitOffsets([
+    {
+      topic,
+      partition,
+      offset: (
+        Number(message.offset) + 1
+      ).toString(),
+    },
+  ]);
+
+  console.log(
+    `Offset committed: ${message.offset}`
+  );
+
+  // STOP processing
+  return;
+}
+       else {
           console.log(
             "Immediate Delivery"
           );
