@@ -5,12 +5,16 @@ import preferenceRoutes from "./routes/preferenceRoutes";
 import { connectRedis } from "./cache/redisCache";
 import { checkProviders } from "./health/providerHealth";
 import dlqRoutes from "./routes/dlqRoutes";
+import metricsRoute from "./routes/metricsRoute";
+import analyticsRoutes from "./routes/analyticsRoutes";
 
 const app = express();
 
 app.use(express.json());
 app.use(preferenceRoutes);
 app.use("/api", dlqRoutes);
+app.use(metricsRoute);
+app.use("/api", analyticsRoutes);
 
 async function main() {
 
