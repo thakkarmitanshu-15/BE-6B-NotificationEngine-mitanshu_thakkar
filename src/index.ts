@@ -7,14 +7,29 @@ import { checkProviders } from "./health/providerHealth";
 import dlqRoutes from "./routes/dlqRoutes";
 import metricsRoute from "./routes/metricsRoute";
 import analyticsRoutes from "./routes/analyticsRoutes";
+import { logger } from "./logger/logger";
+import { correlationId } from "./middleware/correlationId";
+import { requestLogger } from "./middleware/requestLogger";
+import { errorHandler } from "./middleware/errorHandler";
+import healthRoute from "./routes/healthRoute";
+import readiness from "./routes/readiness";
+import liveness from "./routes/liveness";
+
 
 const app = express();
 
+
+app.use(healthRoute)
+app.use(correlationId);
+app.use(requestLogger);
 app.use(express.json());
 app.use(preferenceRoutes);
 app.use("/api", dlqRoutes);
 app.use(metricsRoute);
 app.use("/api", analyticsRoutes);
+app.use(readiness);
+app.use(liveness);
+app.use(errorHandler);
 
 async function main() {
 
@@ -26,8 +41,9 @@ await checkProviders();
 
 // Start Express server
 app.listen(3000, () => {
-console.log("Server running on http://localhost:3000");
-});
+logger.info(
+  "Server running on http://localhost:3000"
+);});
 
 // Publish a sample event after 3 seconds
 setTimeout(async () => {
@@ -47,4 +63,24 @@ price: 3500,
 
 main().catch((err) => {
 console.error("Application failed to start:", err);
+});
+
+process.on("SIGINT", async () => {
+
+  logger.info(
+    "Gracefully shutting down..."
+  );
+
+  process.exit(0);
+
+});
+
+process.on("SIGTERM", async () => {
+
+  logger.info(
+    "Gracefully shutting down..."
+  );
+
+  process.exit(0);
+
 });

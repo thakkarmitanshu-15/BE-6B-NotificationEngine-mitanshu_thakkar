@@ -10,6 +10,7 @@ import { isDndEnabled } from "../compliance/dndService";
 import { getProvider } from "../providers/ProviderFactory";
 import { CircuitBreaker } from "../circuitbreaker/circuitBreaker";
 import {getAllChannels} from "../routing/intelligentRouter";
+import { logger } from "../logger/logger";
 
 
 const consumer = kafka.consumer({
@@ -45,8 +46,7 @@ export async function startConsumer() {
         );
 
         if (duplicate) {
-          console.log("Duplicate event ignored");
-
+          logger.warn("Duplicate event ignored");
           await consumer.commitOffsets([
             {
               topic,
@@ -129,10 +129,7 @@ export async function startConsumer() {
   }
 );
 
-        console.log(
-          "Final Channels:",
-          channels
-        );
+        logger.info({ message: "Final Channels", channels });
 
         const allowed = await canSendNotification(
           event.userId
@@ -140,9 +137,7 @@ export async function startConsumer() {
 
         if (!allowed) {
 
-          console.log(
-            "Frequency cap reached"
-          );
+          logger.warn("Frequency cap reached");
 
           await consumer.commitOffsets([
             {
@@ -175,7 +170,7 @@ export async function startConsumer() {
               ]
             );
 
-            console.log("Critical Event - Bypass Enabled");
+            logger.warn("Critical Event - Bypass Enabled");
           }
 
           if (
@@ -183,9 +178,7 @@ export async function startConsumer() {
             !criticalEvent
           ) {
 
-            console.log(
-              "Quiet Hours - Queued"
-            );
+           logger.warn("Quiet Hours - Queued");
 
             await pool.query(
               `
@@ -222,7 +215,7 @@ export async function startConsumer() {
         // -----------------------------
         if (finalPreferences.digestMode) {
 
-  console.log("Digest Mode Enabled");
+  logger.info("Digest Mode Enabled");
 
   await pool.query(
     `
@@ -242,7 +235,7 @@ export async function startConsumer() {
     ]
   );
 
-  console.log("Notification added to digest queue");
+  logger.info("Notification added to digest queue");
 
   // Commit offset
   await consumer.commitOffsets([
@@ -263,9 +256,7 @@ export async function startConsumer() {
   return;
 }
        else {
-          console.log(
-            "Immediate Delivery"
-          );
+          logger.info("Immediate Delivery");
                   if (channels.includes("sms")) {
 
           const blocked =
@@ -275,9 +266,7 @@ export async function startConsumer() {
 
           if (blocked) {
 
-            console.log(
-              "SMS blocked by DND"
-            );
+            logger.warn("SMS blocked by DND");
 
             const index =
               channels.indexOf("sms");
@@ -314,9 +303,7 @@ export async function startConsumer() {
           ]
         );
 
-        console.log(
-          "Saved to PostgreSQL"
-        );
+        logger.info("Saved to PostgreSQL");
 
         // -----------------------------
         // Commit Offset
@@ -331,15 +318,13 @@ export async function startConsumer() {
           },
         ]);
 
-        console.log(
-          `Offset committed: ${message.offset}`
-        );
+        logger.info({ message: "Offset committed", offset: message.offset });
       } catch (error) {
-        console.error(
-          "Consumer Error:",
-          error
-        );
-      }
+      logger.error({
+        message: "Consumer Error",
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+      });      }
     },
   });
 }
