@@ -1,35 +1,154 @@
-import { getProvider } from "../src/providers/ProviderFactory";
+import nodemailer from "nodemailer";
 
-describe("Provider Factory", () => {
+import { EmailProvider } from "../src/providers/EmailProvider";
+import { SMSProvider } from "../src/providers/SMSProvider";
+import { PushProvider } from "../src/providers/PushProvider";
+import { WhatsAppProvider } from "../src/providers/WhatsAppProvider";
+import { InAppProvider } from "../src/providers/InAppProvider";
 
-  test("Email Provider", () => {
-    expect(
-      getProvider("email")
-    ).toBeDefined();
+jest.mock("nodemailer", () => ({
+  createTransport: () => ({
+    sendMail: jest.fn().mockResolvedValue(true),
+  }),
+}));
+
+describe("Notification Providers", () => {
+
+  test("EmailProvider send()", async () => {
+
+    const provider = new EmailProvider();
+
+    const result = await provider.send(
+      "demo@test.com",
+      "Subject",
+      "Message"
+    );
+
+    expect(result.provider).toBe("Email");
+    expect(result.status).toBe("SUCCESS");
+
   });
 
-  test("SMS Provider", () => {
+  test("EmailProvider healthCheck()", async () => {
+
+    const provider = new EmailProvider();
+
     expect(
-      getProvider("sms")
-    ).toBeDefined();
+      await provider.healthCheck()
+    ).toBe(true);
+
   });
 
-  test("Push Provider", () => {
-    expect(
-      getProvider("push")
-    ).toBeDefined();
+  test("SMSProvider send()", async () => {
+
+    const provider = new SMSProvider();
+
+    const result = await provider.send(
+      "9999999999",
+      "",
+      "Hello"
+    );
+
+    expect(result.provider).toBe("SMS");
+    expect(result.status).toBe("SUCCESS");
+
   });
 
-  test("WhatsApp Provider", () => {
+  test("SMSProvider healthCheck()", async () => {
+
+    const provider = new SMSProvider();
+
     expect(
-      getProvider("whatsapp")
-    ).toBeDefined();
+      await provider.healthCheck()
+    ).toBe(true);
+
   });
 
-  test("InApp Provider", () => {
+  test("PushProvider send()", async () => {
+
+    const provider = new PushProvider();
+
+    const result = await provider.send(
+      "user-123",
+      "",
+      "Push"
+    );
+
+    expect(result.provider).toBe("Push");
+    expect(result.status).toBe("SUCCESS");
+
+  });
+
+  test("PushProvider healthCheck()", async () => {
+
+    const provider = new PushProvider();
+
     expect(
-      getProvider("inapp")
-    ).toBeDefined();
+      await provider.healthCheck()
+    ).toBe(true);
+
+  });
+
+  test("WhatsAppProvider send()", async () => {
+
+    const provider =
+      new WhatsAppProvider();
+
+    const result =
+      await provider.send(
+        "9999999999",
+        "",
+        "WhatsApp"
+      );
+
+    expect(result.provider)
+      .toBe("WhatsApp");
+
+    expect(result.status)
+      .toBe("SUCCESS");
+
+  });
+
+  test("WhatsAppProvider healthCheck()", async () => {
+
+    const provider =
+      new WhatsAppProvider();
+
+    expect(
+      await provider.healthCheck()
+    ).toBe(true);
+
+  });
+
+  test("InAppProvider send()", async () => {
+
+    const provider =
+      new InAppProvider();
+
+    const result =
+      await provider.send(
+        "user-123",
+        "",
+        "Hello"
+      );
+
+    expect(result.provider)
+      .toBe("InApp");
+
+    expect(result.status)
+      .toBe("SUCCESS");
+
+  });
+
+  test("InAppProvider healthCheck()", async () => {
+
+    const provider =
+      new InAppProvider();
+
+    expect(
+      await provider.healthCheck()
+    ).toBe(true);
+
   });
 
 });

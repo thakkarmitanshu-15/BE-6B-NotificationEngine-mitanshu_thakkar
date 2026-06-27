@@ -14,6 +14,8 @@ import { errorHandler } from "./middleware/errorHandler";
 import healthRoute from "./routes/healthRoute";
 import readiness from "./routes/readiness";
 import liveness from "./routes/liveness";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger";
 
 
 const app = express();
@@ -30,6 +32,11 @@ app.use("/api", analyticsRoutes);
 app.use(readiness);
 app.use(liveness);
 app.use(errorHandler);
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec)
+);
 
 async function main() {
 
