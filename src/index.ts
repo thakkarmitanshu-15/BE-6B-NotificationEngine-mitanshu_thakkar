@@ -16,6 +16,8 @@ import readiness from "./routes/readiness";
 import liveness from "./routes/liveness";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger";
+import { limiter } from "./middleware/rateLimiter";
+
 
 
 const app = express();
@@ -32,6 +34,7 @@ app.use("/api", analyticsRoutes);
 app.use(readiness);
 app.use(liveness);
 app.use(errorHandler);
+app.use(limiter);
 app.use(
   "/api-docs",
   swaggerUi.serve,
