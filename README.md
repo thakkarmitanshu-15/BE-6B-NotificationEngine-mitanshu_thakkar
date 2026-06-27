@@ -1,81 +1,255 @@
-# Event Driven Notification Engine
+# Event-Driven Notification Engine
 
-## Overview
+## Project Overview
 
-The Event Driven Notification Engine is a scalable backend platform designed to process financial events and deliver notifications across multiple communication channels.
+The Event-Driven Notification Engine is a scalable backend application that processes financial events and delivers notifications through multiple communication channels. It uses an event-driven architecture to ensure reliable, asynchronous, and fault-tolerant notification delivery.
 
-Supported channels include:
-
-* SMS
-* Email
-* Push Notifications
-* WhatsApp
-* In-App Notifications
-
-The system is designed using Event Driven Architecture principles and supports high availability, fault tolerance, retry mechanisms, delivery tracking, and analytics.
+The system supports intelligent channel routing, user preference management, retry mechanisms, dead letter queue processing, analytics, monitoring, and production-ready deployment.
 
 ---
 
-## Features
+# Features
 
-* Event Driven Architecture
-* Multi Channel Notification Delivery
-* User Preference Management
-* Template Personalization
-* Delivery Tracking
-* Retry Mechanism
-* Dead Letter Queue
-* Quiet Hours Enforcement
-* Frequency Capping
-* DND Compliance
-* Real Time Analytics
+* Event-driven notification processing using Kafka
+* Multi-channel notification delivery
+
+  * Email
+  * SMS
+  * Push Notifications
+  * WhatsApp
+  * In-App Notifications
+* User preference management
+* Intelligent channel routing
+* Provider failover
+* Circuit breaker
+* Retry mechanism with exponential backoff
+* Dead Letter Queue (DLQ)
+* Analytics and metrics
+* Health monitoring
+* Structured logging
+* Docker support
+* GitHub Actions CI/CD
+* Swagger API documentation
+* Postman Collection
+* Unit and integration testing
 
 ---
 
-## Technology Stack
+# Technology Stack
+
+## Backend
 
 * Node.js
 * TypeScript
-* PostgreSQL
-* Redis
+* Express.js
+
+## Messaging
+
 * Apache Kafka
 * RabbitMQ
+
+## Database
+
+* PostgreSQL
+* Redis
+
+## Monitoring
+
+* Winston Logging
+* Prometheus-style Metrics
+
+## Testing
+
+* Jest
+* Postman
+
+## Documentation
+
+* Swagger UI
+* OpenAPI 3.0
+
+## DevOps
+
+* Docker
 * Docker Compose
+* GitHub Actions
 
 ---
 
-## Infrastructure Services
+# Project Structure
 
-### PostgreSQL
-
-Stores notifications, user preferences, delivery status, and audit logs.
-
-### Redis
-
-Used for caching, rate limiting, and analytics aggregation.
-
-### Kafka
-
-Handles event ingestion and event streaming.
-
-### RabbitMQ
-
-Handles notification routing, retries, and dead letter queues.
+```text
+src/
+├── analytics/
+├── cache/
+├── circuitbreaker/
+├── compliance/
+├── config/
+├── consumers/
+├── deduplication/
+├── enrichment/
+├── health/
+├── localization/
+├── logger/
+├── middleware/
+├── monitoring/
+├── producers/
+├── providers/
+├── retry/
+├── routes/
+├── routing/
+├── services/
+├── template-engine/
+└── tests/
+```
 
 ---
 
-## Architecture
+# Architecture Overview
 
-The system follows an Event Driven Architecture pattern:
+```
+Financial Event
 
-Financial Event → Kafka → Event Processor → RabbitMQ → Delivery Channels → Analytics
+↓
+
+Kafka Producer
+
+↓
+
+Kafka Consumer
+
+↓
+
+Deduplication
+
+↓
+
+Enrichment
+
+↓
+
+Compliance
+
+↓
+
+Preference Resolution
+
+↓
+
+Intelligent Routing
+
+↓
+
+Delivery Providers
+
+↓
+
+Retry / DLQ
+
+↓
+
+Analytics
+
+↓
+
+Database
+```
 
 ---
 
-## Future Enhancements
+# API Documentation
 
-* AI-based channel optimization
-* Smart notification scheduling
-* Advanced analytics dashboards
-* Multi-language template management
-* Predictive delivery optimization
+Swagger UI
+
+```
+http://localhost:3000/api-docs
+```
+
+Health APIs
+
+* GET /health
+* GET /ready
+* GET /live
+
+Analytics APIs
+
+* GET /metrics
+* GET /api/analytics
+
+---
+
+# Running the Project
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Start the application
+
+```bash
+npm run dev
+```
+
+---
+
+# Docker
+
+Build
+
+```bash
+docker build -t notification-engine .
+```
+
+Run
+
+```bash
+docker-compose up
+```
+
+---
+
+# Running Tests
+
+```bash
+npm test
+```
+
+Coverage
+
+```bash
+npm test -- --coverage
+```
+
+Current Coverage
+
+* Statements: 85.71%
+* Functions: 91.30%
+
+---
+
+# Security
+
+* Rate limiting
+* Input validation using Zod
+* SQL Injection prevention
+* Environment variable configuration
+* npm audit scanning
+
+---
+
+# Monitoring
+
+* Health endpoints
+* Readiness probe
+* Liveness probe
+* Structured logging
+* Correlation IDs
+* Metrics endpoint
+
+---
+
+# Contributors
+
+Project developed as part of the Zetheta Backend Internship Assignment.
